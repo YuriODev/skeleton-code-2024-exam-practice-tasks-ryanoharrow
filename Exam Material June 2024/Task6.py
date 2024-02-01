@@ -13,7 +13,7 @@ def Main():
         Filename = input("Press Enter to start a standard puzzle or enter name of file to load: ")
         if len(Filename) > 0:
             MyPuzzle = Puzzle(Filename + ".txt")
-        else:
+        else: # symbols set to 60% of grid size to avoid senario where all cells  
             MyPuzzle = Puzzle(8, int(8 * 8 * 0.6))
         Score = MyPuzzle.AttemptPuzzle()
         print("Puzzle finished. Your score was: " + str(Score))
@@ -21,7 +21,7 @@ def Main():
 
 class Puzzle():
     def __init__(self, *args):
-        if len(args) == 1:
+        if len(args) == 1:        # Filename given
             self.__Score = 0
             self.__SymbolsLeft = 0
             self.__GridSize = 0
@@ -29,20 +29,20 @@ class Puzzle():
             self.__AllowedPatterns = []
             self.__AllowedSymbols = []
             self.__LoadPuzzle(args[0])
-        else:
+        else:        # Generate Random 8x8 grid                               
             self.__Score = 0
             self.__SymbolsLeft = args[1]
             self.__GridSize = args[0]
             self.__Grid = []
             for Count in range(1, self.__GridSize * self.__GridSize + 1):
-                if random.randrange(1, 101) < 90:
+                if random.randrange(1, 101) < 90:        # 10 % chance to be a blocked cells
                     C = Cell()
                 else:
                     C = BlockedCell()
                 self.__Grid.append(C)
             self.__AllowedPatterns = []
             self.__AllowedSymbols = []
-            QPattern = Pattern("Q", "QQ**Q**QQ")
+            QPattern = Pattern("Q", "QQ**Q**QQ")        # Whirls not line by line (ie line by line would have been: QQ*QQ***Q)
             self.__AllowedPatterns.append(QPattern)
             self.__AllowedSymbols.append("Q")
             XPattern = Pattern("X", "X*X*X*X*X")
@@ -52,24 +52,13 @@ class Puzzle():
             self.__AllowedPatterns.append(TPattern)
             self.__AllowedSymbols.append("T")
 
-    def SavePuzzle(self):
-        file = open("saved_puzzle","w")
-
-        for i in range(8):
-            for j in range(8):
-                try:
-                    print(self.__GetCell(i,j))
-
-                except:
-                    pass
-
-    def __LoadPuzzle(self, Filename):
+    def __LoadPuzzle(self, Filename):        # Loads file
         try:
             with open(Filename) as f:
-                NoOfSymbols = int(f.readline().rstrip())
-                for Count in range (1, NoOfSymbols + 1):
-                    self.__AllowedSymbols.append(f.readline().rstrip())
-                NoOfPatterns = int(f.readline().rstrip())
+                NoOfSymbols = int(f.readline().rstrip())                            # Number of inputed symbols
+                for Count in range (1, NoOfSymbols + 1):                            # Loads thier Symbols
+                    self.__AllowedSymbols.append(f.readline().rstrip())               
+                NoOfPatterns = int(f.readline().rstrip())                           # 
                 for Count in range(1, NoOfPatterns + 1):
                     Items = f.readline().rstrip().split(",")
                     P = Pattern(Items[0], Items[1])
@@ -90,6 +79,37 @@ class Puzzle():
                 self.__SymbolsLeft = int(f.readline().rstrip())
         except:
             print("Puzzle not loaded")
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
+   
+    def __SavePuzzle(self):
+        # Prompt user for file name and append .txt extension
+        file_name = input("Save file as: ") + ".txt"
+
+        # Use context manager for file operations
+        with open(file_name, "w") as file:
+            # Write the number of allowed symbols
+            file.write(f"{len(self.__AllowedSymbols)}\n")
+            for symbol in self.__AllowedSymbols:
+                file.write(f"{symbol}\n")
+
+            # Write the number of allowed patterns
+            file.write(f"{len(self.__AllowedPatterns)}\n")
+            for pattern in self.__AllowedPatterns:
+                file.write(f"{pattern.GetSymbol()}, {pattern.GetPatternSequence()}\n")
+
+            # Write grid size
+            file.write(f"{self.__GridSize}\n")
+            # Write each cell's save data
+            for cell in self.__Grid:
+                file.write(f"{cell.GetSaveData()}\n")
+
+            # Write score and symbols left
+            file.write(f"{self.__Score}\n")
+            file.write(f"{self.__SymbolsLeft}\n")
+
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
 
     def AttemptPuzzle(self):
         Finished = False
@@ -120,13 +140,17 @@ class Puzzle():
                 AmountToAddToScore = self.CheckforMatchWithPattern(Row, Column)
                 if AmountToAddToScore > 0:
                     self.__Score += AmountToAddToScore
-
-            save = bool(input("Save puzzle state? "))
-            if save:
-                self.SavePuzzle()
-
             if self.__SymbolsLeft == 0:
                 Finished = True
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
+          
+            saveFile = str(input("Do you want to save the current puzzle? (y/n)")).lower()
+            if saveFile == "y":
+                self.__SavePuzzle()
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
+
         print()
         self.DisplayPuzzle()
         print()
@@ -142,7 +166,7 @@ class Puzzle():
     def CheckforMatchWithPattern(self, Row, Column):
         for StartRow in range(Row + 2, Row - 1, -1):
             for StartColumn in range(Column - 2, Column + 1):
-                try:
+                try:        # Loads the string of symbols from that coord
                     PatternString = ""
                     PatternString += self.__GetCell(StartRow, StartColumn).GetSymbol()
                     PatternString += self.__GetCell(StartRow, StartColumn + 1).GetSymbol()
@@ -153,7 +177,7 @@ class Puzzle():
                     PatternString += self.__GetCell(StartRow - 2, StartColumn).GetSymbol()
                     PatternString += self.__GetCell(StartRow - 1, StartColumn).GetSymbol()
                     PatternString += self.__GetCell(StartRow - 1, StartColumn + 1).GetSymbol()
-                    for P in self.__AllowedPatterns:
+                    for P in self.__AllowedPatterns:        # Checks all 
                         CurrentSymbol = self.__GetCell(Row, Column).GetSymbol()
                         if P.MatchesPattern(PatternString, CurrentSymbol):
                             self.__GetCell(StartRow, StartColumn).AddToNotAllowedSymbols(CurrentSymbol)
@@ -176,25 +200,26 @@ class Puzzle():
             Symbol = input("Enter symbol: ")
         return Symbol
 
-    def __CreateHorizontalLine(self):
+    def __CreateHorizontalLine(self):        # Creates:   -----------------
         Line = "  "
         for Count in range(1, self.__GridSize * 2 + 2):
             Line = Line + "-"
         return Line
 
-    def DisplayPuzzle(self):
+    def DisplayPuzzle(self):        # runs top to bottom line by line
+
         print()
-        if self.__GridSize < 10:
+        if self.__GridSize < 10: # prints columns numbers
             print("  ", end='')
             for Count in range(1, self.__GridSize + 1):
                 print(" " + str(Count), end='')
         print()
         print(self.__CreateHorizontalLine())
-        for Count in range(0, len(self.__Grid)):
-            if Count % self.__GridSize == 0 and self.__GridSize < 10:
-                print(str(self.__GridSize - ((Count + 1) // self.__GridSize)) + " ", end='')
+        for Count in range(0, len(self.__Grid)):        # for every value in grid
+            if Count % self.__GridSize == 0 and self.__GridSize < 10:        # When count == gridsize (eg 8) print value then go to new line
+                print(str(self.__GridSize - ((Count + 1) // self.__GridSize)) + " ", end='') # If it is a new line
             print("|" + self.__Grid[Count].GetSymbol(), end='')
-            if (Count + 1) % self.__GridSize == 0:
+            if (Count + 1) % self.__GridSize == 0: # if end of line 
                 print("|")
                 print(self.__CreateHorizontalLine())
 
@@ -214,8 +239,11 @@ class Pattern():
                 print(f"EXCEPTION in MatchesPattern: {ex}")
         return True
 
+    def GetSymbol(self):
+        return self.__Symbol
+
     def GetPatternSequence(self):
-      return self.__PatternSequence
+        return self.__PatternSequence
 
 class Cell():
     def __init__(self):
@@ -227,6 +255,13 @@ class Cell():
           return "-"
         else:
           return self._Symbol
+
+    def GetSaveData(self):
+        SymbolsNotAllowedString = ""
+        for symbol in self.__SymbolsNotAllowed:
+            SymbolsNotAllowedString += ","+str(symbol)
+        saveData = self._Symbol + SymbolsNotAllowedString
+        return saveData
 
     def IsEmpty(self):
         if len(self._Symbol) == 0:
@@ -259,6 +294,3 @@ class BlockedCell(Cell):
 
 if __name__ == "__main__":
     Main()
-
-# I made some changes here
-# And here

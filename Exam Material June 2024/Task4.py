@@ -140,7 +140,7 @@ class Puzzle():
                     PatternString = ""
 
                     
-##############################################################################################################BOSH#######################################################################################################################
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
 
                     for C in PatternList:
                         PatternString += C.GetSymbol()
@@ -154,7 +154,8 @@ class Puzzle():
                                     print("You cannot overlap patterns of the same symbol to re-use cells")
                                     return 0
 
-#############################################################################################################BOSH########################################################################################################################
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
+                          
                             self.__GetCell(StartRow, StartColumn).AddToNotAllowedSymbols(CurrentSymbol)
                             self.__GetCell(StartRow, StartColumn + 1).AddToNotAllowedSymbols(CurrentSymbol)
                             self.__GetCell(StartRow, StartColumn + 2).AddToNotAllowedSymbols(CurrentSymbol)
