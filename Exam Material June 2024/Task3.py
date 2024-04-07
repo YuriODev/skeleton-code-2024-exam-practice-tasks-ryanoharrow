@@ -30,14 +30,20 @@ class Puzzle():
             self.__AllowedSymbols = []
             self.__LoadPuzzle(args[0])
         else:
+
+### CODE CHANGES HERE ###
+            
+            self.__PatternCount = {
+                "Q" : random.randint(1,3),
+                "X" : random.randint(1,3),
+                "T" : random.randint(1,3)
+            }
+            print (self.__PatternCount)
             self.__Score = 0
             self.__SymbolsLeft = args[1]
             self.__GridSize = args[0]
             self.__Grid = []
             for Count in range(1, self.__GridSize * self.__GridSize + 1):
-                if Count % self.__GridSize == 0:
-                    C = BlockedCell()
-                    self.__Grid.append(C)
                 if random.randrange(1, 101) < 90:
                     C = Cell()
                 else:
@@ -56,7 +62,7 @@ class Puzzle():
             self.__AllowedSymbols.append("T")
 
     def __LoadPuzzle(self, Filename):
-        try:
+        # try:
             with open(Filename) as f:
                 NoOfSymbols = int(f.readline().rstrip())
                 for Count in range (1, NoOfSymbols + 1):
@@ -78,11 +84,10 @@ class Puzzle():
                         for CurrentSymbol in range(1, len(Items)):
                             C.AddToNotAllowedSymbols(Items[CurrentSymbol])
                         self.__Grid.append(C)
-                    
                 self.__Score = int(f.readline().rstrip())
                 self.__SymbolsLeft = int(f.readline().rstrip())
-        except:
-            print("Puzzle not loaded")
+        # except:
+        #     print("Puzzle not loaded")
 
     def AttemptPuzzle(self):
         Finished = False
@@ -113,6 +118,7 @@ class Puzzle():
                 AmountToAddToScore = self.CheckforMatchWithPattern(Row, Column)
                 if AmountToAddToScore > 0:
                     self.__Score += AmountToAddToScore
+            
             if self.__SymbolsLeft == 0:
                 Finished = True
         print()
@@ -153,7 +159,17 @@ class Puzzle():
                             self.__GetCell(StartRow - 2, StartColumn).AddToNotAllowedSymbols(CurrentSymbol)
                             self.__GetCell(StartRow - 1, StartColumn).AddToNotAllowedSymbols(CurrentSymbol)
                             self.__GetCell(StartRow - 1, StartColumn + 1).AddToNotAllowedSymbols(CurrentSymbol)
-                            return 10
+                            
+
+### CODE CHANGES HERE ###
+
+                            if self.__PatternCount[CurrentSymbol] == 0:
+                                print (f"You cannot use any more of the symbol {CurrentSymbol}")
+                                return 0
+                            else:
+                                self.__PatternCount[CurrentSymbol] = self.__PatternCount[CurrentSymbol] - 1
+                                print (f"You have got {self.__PatternCount[CurrentSymbol]} {CurrentSymbol}'s left ") 
+                                return 10
                 except:
                     pass
         return 0
@@ -185,12 +201,6 @@ class Puzzle():
             if (Count + 1) % self.__GridSize == 0:
                 print("|")
                 print(self.__CreateHorizontalLine())
-
-###################################################################################
-                
-        for i in range (self.__GridSize*self.__GridSize):
-            print(self.__Grid[i].GetSymbol(),end=" ")
-
 
 class Pattern():
     def __init__(self, SymbolToUse, PatternString):

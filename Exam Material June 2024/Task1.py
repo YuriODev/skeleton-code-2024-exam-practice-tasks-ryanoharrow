@@ -1,3 +1,5 @@
+# Create a new pattern.
+
 #Skeleton Program code for the AQA A Level Paper 1 Summer 2024 examination
 #this code should be used in conjunction with the Preliminary Material
 #written by the AQA Programmer Team
@@ -14,7 +16,7 @@ def Main():
         if len(Filename) > 0:
             MyPuzzle = Puzzle(Filename + ".txt")
         else:
-            MyPuzzle = Puzzle(8, int(8 * 8 * 0.6)) 
+            MyPuzzle = Puzzle(8, int(8 * 8 * 0.6))
         Score = MyPuzzle.AttemptPuzzle()
         print("Puzzle finished. Your score was: " + str(Score))
         Again = input("Do another puzzle? ").lower()
@@ -51,7 +53,7 @@ class Puzzle():
             TPattern = Pattern("T", "TTT**T**T")
             self.__AllowedPatterns.append(TPattern)
             self.__AllowedSymbols.append("T")
-            CPattern = Pattern("C","CCC*CCCC**")
+            CPattern = Pattern("C", "CCC*CCC*")
             self.__AllowedPatterns.append(CPattern)
             self.__AllowedSymbols.append("C")
 
@@ -112,6 +114,11 @@ class Puzzle():
                 AmountToAddToScore = self.CheckforMatchWithPattern(Row, Column)
                 if AmountToAddToScore > 0:
                     self.__Score += AmountToAddToScore
+
+            save = bool(input("Save puzzle state? "))
+            if save:
+                self.SavePuzzle()
+            
             if self.__SymbolsLeft == 0:
                 Finished = True
         print()
