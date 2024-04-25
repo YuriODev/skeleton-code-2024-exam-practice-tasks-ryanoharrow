@@ -109,10 +109,6 @@ class Puzzle():
                 AmountToAddToScore = self.CheckforMatchWithPattern(Row, Column)
                 if AmountToAddToScore > 0:
                     self.__Score += AmountToAddToScore
-
-            save = bool(input("Save puzzle state? "))
-            if save:
-                self.SavePuzzle()
             
             if self.__SymbolsLeft == 0:
                 Finished = True
